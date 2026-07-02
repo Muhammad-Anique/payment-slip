@@ -57,6 +57,10 @@ interface SlipData {
 
 const today = new Date().toISOString().split("T")[0];
 
+// Quick Prefill holds personal invoice history — only shown when running
+// locally (`npm run dev`). It is never rendered in the deployed production build.
+const IS_LOCAL = process.env.NODE_ENV === "development";
+
 const OMNIGPT_LOGO = "data:image/png;base64,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";
 
 const DEFAULT: SlipData = {
@@ -463,11 +467,47 @@ function SlipPreview({ d }: { d: SlipData }) {
 
 // ── Form helpers ───────────────────────────────────────────────────────────────
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+// ── Accordion ──────────────────────────────────────────────────────────────────
+
+function Accordion({
+  title,
+  icon,
+  hint,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  icon: string;
+  hint?: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="mb-6">
-      <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">{title}</p>
-      <div className="space-y-3">{children}</div>
+    <div className={`rounded-xl border transition-colors ${open ? "border-indigo-200 bg-white shadow-sm" : "border-gray-200 bg-white hover:border-gray-300"}`}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left cursor-pointer"
+      >
+        <span className="flex items-center gap-2.5">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-50 text-sm">{icon}</span>
+          <span className="flex flex-col">
+            <span className="text-sm font-semibold text-gray-800">{title}</span>
+            {hint && <span className="text-[11px] text-gray-400">{hint}</span>}
+          </span>
+        </span>
+        <svg
+          viewBox="0 0 20 20"
+          fill="none"
+          className={`h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        >
+          <path d="M5 7.5 10 12.5 15 7.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && <div className="space-y-3 border-t border-gray-100 px-4 pb-4 pt-3">{children}</div>}
     </div>
   );
 }
@@ -634,6 +674,24 @@ export default function Page() {
   const [d, setD] = useState<SlipData>(DEFAULT);
   const previewRef = useRef<HTMLDivElement>(null);
 
+  const SECTIONS = ["Branding", "Invoice Details", "Bill To", "From", "Bank", "Signature"] as const;
+  const [openSections, setOpenSections] = useState<Set<string>>(
+    () => new Set(["Branding", "Invoice Details"])
+  );
+
+  function toggleSection(name: string) {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      next.has(name) ? next.delete(name) : next.add(name);
+      return next;
+    });
+  }
+
+  const allOpen = openSections.size === SECTIONS.length;
+  function toggleAll() {
+    setOpenSections(allOpen ? new Set() : new Set(SECTIONS));
+  }
+
   function set<K extends keyof SlipData>(key: K, value: SlipData[K]) {
     setD((prev) => ({ ...prev, [key]: value }));
   }
@@ -774,37 +832,51 @@ export default function Page() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-5">
-          {/* ── Quick Prefill ── */}
-          <div className="mb-6 rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-widest text-indigo-400 mb-2">Quick Prefill</p>
-            <select
-              className="w-full rounded-lg border border-indigo-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition cursor-pointer"
-              defaultValue=""
-              onChange={(e) => {
-                const idx = parseInt(e.target.value);
-                if (isNaN(idx)) return;
-                const p = PRESETS[idx];
-                setD((prev) => ({
-                  ...prev,
-                  receiptNumber: p.receiptNumber,
-                  date: p.date,
-                  amount: p.amount,
-                  bonus: p.bonus,
-                  includeBonus: p.includeBonus,
-                  description: p.description,
-                }));
-                e.target.value = "";
-              }}
+        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
+          {/* ── Quick Prefill (local dev only — hidden in production) ── */}
+          {IS_LOCAL && (
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-indigo-400 mb-2">Quick Prefill · Local only</p>
+              <select
+                className="w-full rounded-lg border border-indigo-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 transition cursor-pointer"
+                defaultValue=""
+                onChange={(e) => {
+                  const idx = parseInt(e.target.value);
+                  if (isNaN(idx)) return;
+                  const p = PRESETS[idx];
+                  setD((prev) => ({
+                    ...prev,
+                    receiptNumber: p.receiptNumber,
+                    date: p.date,
+                    amount: p.amount,
+                    bonus: p.bonus,
+                    includeBonus: p.includeBonus,
+                    description: p.description,
+                  }));
+                  e.target.value = "";
+                }}
+              >
+                <option value="" disabled>Select an invoice to prefill…</option>
+                {PRESETS.map((p, i) => (
+                  <option key={p.receiptNumber} value={i}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* ── Expand / collapse all ── */}
+          <div className="flex items-center justify-between px-1">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Sections</p>
+            <button
+              type="button"
+              onClick={toggleAll}
+              className="text-xs font-medium text-indigo-500 hover:text-indigo-600 transition cursor-pointer"
             >
-              <option value="" disabled>Select an invoice to prefill…</option>
-              {PRESETS.map((p, i) => (
-                <option key={p.receiptNumber} value={i}>{p.label}</option>
-              ))}
-            </select>
+              {allOpen ? "Collapse all" : "Expand all"}
+            </button>
           </div>
 
-          <Section title="Branding">
+          <Accordion title="Branding" icon="🎨" hint="Logo, colors & tagline" open={openSections.has("Branding")} onToggle={() => toggleSection("Branding")}>
             <Field label="">
               <label className="flex items-center gap-2 cursor-pointer mb-1">
                 <input
@@ -855,9 +927,9 @@ export default function Page() {
                 <Input value={d.bannerBgColor} onChange={(v) => set("bannerBgColor", v)} placeholder="#eef2ff" />
               </div>
             </Field>
-          </Section>
+          </Accordion>
 
-          <Section title="Invoice Details">
+          <Accordion title="Invoice Details" icon="🧾" hint="Number, date, amount & method" open={openSections.has("Invoice Details")} onToggle={() => toggleSection("Invoice Details")}>
             <div className="grid grid-cols-2 gap-2">
               <Field label="Invoice #">
                 <Input value={d.receiptNumber} onChange={(v) => set("receiptNumber", v)} placeholder="INV-001" />
@@ -948,9 +1020,9 @@ export default function Page() {
             <Field label="Description">
               <Textarea value={d.description} onChange={(v) => set("description", v)} placeholder="Freelance / contract payment" />
             </Field>
-          </Section>
+          </Accordion>
 
-          <Section title="Bill To (Client)">
+          <Accordion title="Bill To (Client)" icon="👤" hint="Who you're billing" open={openSections.has("Bill To")} onToggle={() => toggleSection("Bill To")}>
             <Field label="Name">
               <Input value={d.payerName} onChange={(v) => set("payerName", v)} placeholder="Client / Company name" />
             </Field>
@@ -968,9 +1040,9 @@ export default function Page() {
             <Field label="Address max width (px)">
               <Input type="number" value={d.addressMaxWidth} onChange={(v) => set("addressMaxWidth", v)} placeholder="200" />
             </Field>
-          </Section>
+          </Accordion>
 
-          <Section title="From (You / Contractor)">
+          <Accordion title="From (You / Contractor)" icon="🏠" hint="Your details" open={openSections.has("From")} onToggle={() => toggleSection("From")}>
             <Field label="Name">
               <Input value={d.payeeName} onChange={(v) => set("payeeName", v)} placeholder="Your name" />
             </Field>
@@ -985,9 +1057,9 @@ export default function Page() {
             <Field label="Address">
               <Textarea value={d.payeeAddress} onChange={(v) => set("payeeAddress", v)} placeholder={"123 Main St\nCity, Country"} />
             </Field>
-          </Section>
+          </Accordion>
 
-          <Section title="Payment Instructions (Bank)">
+          <Accordion title="Payment Instructions (Bank)" icon="🏦" hint="Account & IBAN" open={openSections.has("Bank")} onToggle={() => toggleSection("Bank")}>
             <Field label="">
               <label className="flex items-center gap-2 cursor-pointer mb-1">
                 <input
@@ -1014,9 +1086,9 @@ export default function Page() {
             <Field label="Swift / BIC">
               <Input value={d.bankSwift} onChange={(v) => set("bankSwift", v)} placeholder="e.g. TRWIBEB1XXX" />
             </Field>
-          </Section>
+          </Accordion>
 
-          <Section title="Signature & Footer">
+          <Accordion title="Signature & Footer" icon="✍️" hint="Signatory & footer note" open={openSections.has("Signature")} onToggle={() => toggleSection("Signature")}>
             <Field label="Signatory name">
               <Input value={d.signatoryName} onChange={(v) => set("signatoryName", v)} placeholder="e.g. John Smith" />
             </Field>
@@ -1037,7 +1109,7 @@ export default function Page() {
             <Field label="Footer note">
               <Textarea value={d.footerNote} onChange={(v) => set("footerNote", v)} placeholder="This is an official payment receipt..." />
             </Field>
-          </Section>
+          </Accordion>
         </div>
       </div>
 
